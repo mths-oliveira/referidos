@@ -1,56 +1,131 @@
 import {
-  Link as ChakraLink,
+  Button,
+  Center,
+  Flex,
+  FormControl,
+  FormLabel,
+  Input,
   Text,
-  Code,
-  List,
-  ListIcon,
-  ListItem,
-} from '@chakra-ui/react'
-import { CheckCircleIcon, LinkIcon } from '@chakra-ui/icons'
+  Textarea,
+  useColorMode,
+  useToast,
+} from "@chakra-ui/react"
+import { useEffect, useState } from "react"
 
-import { Hero } from '../components/Hero'
-import { Container } from '../components/Container'
-import { Main } from '../components/Main'
-import { DarkModeSwitch } from '../components/DarkModeSwitch'
-import { CTA } from '../components/CTA'
-import { Footer } from '../components/Footer'
+export default function () {
+  const toast = useToast()
+  const [name, setName] = useState("")
+  const [leads, setLeads] = useState("")
+  const [amount, setAmount] = useState(0)
+  const { setColorMode } = useColorMode()
+  useEffect(() => {
+    setColorMode("dark")
+  }, [])
 
-const Index = () => (
-  <Container height="100vh">
-    <Hero />
-    <Main>
-      <Text color="text">
-        Example repository of <Code>Next.js</Code> + <Code>chakra-ui</Code> +{' '}
-        <Code>TypeScript</Code>.
-      </Text>
-
-      <List spacing={3} my={0} color="text">
-        <ListItem>
-          <ListIcon as={CheckCircleIcon} color="green.500" />
-          <ChakraLink
-            isExternal
-            href="https://chakra-ui.com"
-            flexGrow={1}
-            mr={2}
-          >
-            Chakra UI <LinkIcon />
-          </ChakraLink>
-        </ListItem>
-        <ListItem>
-          <ListIcon as={CheckCircleIcon} color="green.500" />
-          <ChakraLink isExternal href="https://nextjs.org" flexGrow={1} mr={2}>
-            Next.js <LinkIcon />
-          </ChakraLink>
-        </ListItem>
-      </List>
-    </Main>
-
-    <DarkModeSwitch />
-    <Footer>
-      <Text>Next ❤️ Chakra</Text>
-    </Footer>
-    <CTA />
-  </Container>
-)
-
-export default Index
+  return (
+    <Center height="100vh" bg="#222">
+      <Flex
+        as="form"
+        flexDirection="column"
+        width="22.5rem"
+        onSubmit={(e) => {
+          e.preventDefault()
+          navigator.clipboard.writeText(leads).then(
+            () => {
+              toast({
+                title: `${amount} contatos cópiados pra área de transferência`,
+                position: "top-right",
+                description: "Cole em sua planilha pressionando (Ctrl + v)",
+                status: "success",
+                duration: 10000,
+                isClosable: true,
+              })
+            },
+            () => {
+              toast({
+                title: "Erro",
+                position: "top-right",
+                description:
+                  "verifique se os campos foram preenchidos corretamente e tente novamente",
+                status: "error",
+                duration: 10000,
+                isClosable: true,
+              })
+            }
+          )
+        }}
+      >
+        <FormControl>
+          <FormLabel fontWeight="semibold">Nome</FormLabel>
+          <Input
+            textTransform="capitalize"
+            size="lg"
+            fontSize="1rem"
+            onBlur={(e) => {
+              let names = e.target.value.split(" ")
+              let nameList = []
+              for (const name of names) {
+                const firtChar = name.charAt(0)
+                const subString = name.substring(1)
+                const nameCapitalized =
+                  firtChar.toUpperCase() + subString.toLocaleLowerCase()
+                nameList.push(nameCapitalized)
+              }
+              const fullNameCapitalized = nameList.join(" ")
+              setName(fullNameCapitalized)
+            }}
+          />
+        </FormControl>
+        <FormControl marginTop="1.5rem">
+          <FormLabel fontWeight="semibold">Contatos</FormLabel>
+          <Textarea
+            rows={6}
+            onBlur={(e) => {
+              const regexp =
+                /[a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšž ]+\n[0-9-+() ]+/gi
+              let texto = ""
+              const linhas = e.currentTarget.value.match(regexp)
+              if (!linhas) return
+              for (const linha of linhas) {
+                let [nome, numero] = linha.split("\n")
+                numero = numero.replace(/[()]/g, "")
+                texto += `${nome}\t="${numero}"\t${name}\n`
+              }
+              setAmount(linhas.length)
+              setLeads(texto)
+            }}
+          />
+        </FormControl>
+        <Text
+          marginY="2.25rem"
+          textAlign="center"
+          color="blue.300"
+          cursor="pointer"
+          _hover={{
+            textDecoration: "underline",
+          }}
+          onClick={() => {
+            const input = document.getElementsByTagName("input")[0]
+            const textarea = document.getElementsByTagName("textarea")[0]
+            input.value = ""
+            textarea.value = ""
+          }}
+        >
+          Limpar formulários
+        </Text>
+        <Button
+          type="submit"
+          bg="blue.300"
+          color="#222"
+          size="lg"
+          fontSize="1rem"
+          _hover={{
+            bg: "blue.200",
+          }}
+        >
+          Cópiar
+        </Button>
+      </Flex>
+    </Center>
+  )
+}
