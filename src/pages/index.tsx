@@ -15,8 +15,7 @@ import { useEffect, useState } from "react"
 export default function () {
   const toast = useToast()
   const [name, setName] = useState("")
-  const [leads, setLeads] = useState("")
-  const [amount, setAmount] = useState(0)
+  const [lines, setLines] = useState("")
   const { setColorMode } = useColorMode()
   useEffect(() => {
     setColorMode("dark")
@@ -30,10 +29,20 @@ export default function () {
         width="22.5rem"
         onSubmit={(e) => {
           e.preventDefault()
-          navigator.clipboard.writeText(leads).then(
+          const regexp = /.+\n[0-9-+() ]+/gi
+          const linhas = lines.match(regexp)
+          let texto = ""
+          if (!linhas) return
+          for (const linha of linhas) {
+            let [nome, numero] = linha.split("\n")
+            numero = numero.replace(/[()]/g, "")
+            texto += `${nome}\t="${numero}"\t${name}\n`
+          }
+
+          navigator.clipboard.writeText(texto).then(
             () => {
               toast({
-                title: `${amount} contatos cópiados pra área de transferência`,
+                title: `${linhas.length} contatos cópiados pra área de transferência`,
                 position: "top-right",
                 description: "Cole em sua planilha pressionando (Ctrl + v)",
                 status: "success",
@@ -80,19 +89,8 @@ export default function () {
           <FormLabel fontWeight="semibold">Contatos</FormLabel>
           <Textarea
             rows={6}
-            onBlur={(e) => {
-              const regexp =
-                /[a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšž ]+\n[0-9-+() ]+/gi
-              let texto = ""
-              const linhas = e.currentTarget.value.match(regexp)
-              if (!linhas) return
-              for (const linha of linhas) {
-                let [nome, numero] = linha.split("\n")
-                numero = numero.replace(/[()]/g, "")
-                texto += `${nome}\t="${numero}"\t${name}\n`
-              }
-              setAmount(linhas.length)
-              setLeads(texto)
+            onChange={(e) => {
+              setLines(e.currentTarget.value)
             }}
           />
         </FormControl>

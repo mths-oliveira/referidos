@@ -12,6 +12,11 @@ export default class Document extends NextDocument {
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
             rel="stylesheet"
           />
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7275668723926191"
+            crossOrigin="anonymous"
+          />
         </Head>
         <body>
           <ColorModeScript initialColorMode="dark" />
