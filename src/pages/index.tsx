@@ -66,7 +66,7 @@ export default function () {
         }}
       >
         <FormControl>
-          <FormLabel fontWeight="semibold">Nome</FormLabel>
+          <FormLabel fontWeight="semibold">Nome do referido</FormLabel>
           <Input
             textTransform="capitalize"
             size="lg"
