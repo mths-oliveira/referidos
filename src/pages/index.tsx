@@ -35,7 +35,8 @@ export default function () {
           if (!linhas) return
           for (const linha of linhas) {
             let [nome, numero] = linha.split("\n")
-            numero = numero.replace(/[()]/g, "")
+
+            numero = numero.replace(/[+()]/g, "")
             texto += `${nome}\t="${numero}"\t${name}\n`
           }
 
